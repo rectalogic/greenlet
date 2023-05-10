@@ -15,7 +15,7 @@ from setuptools import find_packages
 global_compile_args = []
 
 # Extra compiler arguments passed to C++ extensions
-cpp_compile_args = []
+cpp_compile_args = ["-g3"]
 
 # Extra linker arguments passed to C++ extensions
 cpp_link_args = []
