@@ -142,6 +142,7 @@ using greenlet::Greenlet;
 using greenlet::UserGreenlet;
 using greenlet::MainGreenlet;
 
+#define Debug(...) fprintf(stderr, "DEBUG " __VA_ARGS__)
 
 // ******* Implementation of things from included files
 template<typename T, greenlet::refs::TypeChecker TC>
@@ -324,7 +325,9 @@ public:
         empty_dict(0),
         str_run(0),
         thread_states_to_destroy_lock(0)
-    {}
+    {
+        Debug("GreenletGlobals(dummy) %d\n", this);
+    }
 
     GreenletGlobals() :
         event_switch("switch"),
@@ -335,7 +338,9 @@ public:
         empty_dict(Require(PyDict_New())),
         str_run("run"),
         thread_states_to_destroy_lock(new Mutex())
-    {}
+    {
+        Debug("GreenletGlobals() %d\n", this);
+    }
 
     ~GreenletGlobals()
     {
@@ -347,10 +352,12 @@ public:
         // then.
         // (The members will still be destructed, but they also don't
         // do any deallocation.)
+        Debug("~GreenletGlobals() %d thread_states_to_destroy.size()==%d\n", this, thread_states_to_destroy.size());
     }
 
     void queue_to_destroy(ThreadState* ts) const
     {
+        Debug("queue_to_destroy %d\n", ts);
         // we're currently accessed through a static const object,
         // implicitly marking our members as const, so code can't just
         // call push_back (or pop_back) without casting away the
@@ -366,6 +373,7 @@ public:
         greenlet::cleanup_queue_t& q = const_cast<greenlet::cleanup_queue_t&>(this->thread_states_to_destroy);
         ThreadState* result = q.back();
         q.pop_back();
+        Debug("take_next_to_destroy %d\n", result);
         return result;
     }
 };
@@ -388,6 +396,7 @@ struct ThreadState_DestroyWithGIL
     static int
     DestroyWithGIL(ThreadState* state)
     {
+        Debug("DestroyWithGIL %d\n", state);
         // Holding the GIL.
         // Passed a non-shared pointer to the actual thread state.
         // state -> main greenlet

@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-docker run -it --rm -v "$(pwd)/../:/greenlet" greenlet
+docker run -it --rm --init -v "$(pwd)/../:/greenlet" --name greenlet greenlet
